@@ -193,7 +193,7 @@ module Twitter
 
       unless (q = query).empty?
         if @options[:method].to_s.upcase == 'GET'
-          request_uri << "?#{q}"
+          request_uri += "?#{q}"
         else
           content = q
         end
@@ -207,7 +207,7 @@ module Twitter
       if @options[:auth]
         data << "Authorization: Basic #{[@options[:auth]].pack('m').delete("\r\n")}"
       elsif @options[:oauth]
-        data << "Authorization: #{oauth_header}"
+        data << "Authorization: #{oauth_header.to_s}"
       end
 
       if @proxy && @proxy.user
@@ -311,13 +311,13 @@ module Twitter
       @options[:params].merge( :track => @options[:filters] ).each do |param, val|
         next if val.empty?
         val = val.join(",") if val.respond_to?(:join)
-        flat[escape(param)] = escape(val)
+        flat[param] = val
       end
       flat
     end
 
     def query
-      params.map{|pair| pair.join("=")}.sort.join("&")
+      params.map{|pair| pair.map{|v| escape(v)}.join("=")}.sort.join("&")
     end
 
     def escape str
